@@ -78,23 +78,35 @@ local recoils <const> = {
 	[`WEAPON_RPG`] = 0.4
 };
 
-Citizen.CreateThread(function()
+local GetGameplayCamRelativePitch <const> = GetGameplayCamRelativePitch;
+local SetGameplayCamRelativePitch <const> = SetGameplayCamRelativePitch;
+local GetFollowPedCamViewMode <const> = GetFollowPedCamViewMode;
+local GetCurrentPedWeapon <const> = GetCurrentPedWeapon;
+local IsPedDoingDriveby <const> = IsPedDoingDriveby;
+local PlayerPedId <const> = PlayerPedId;
+local IsPedShooting <const> = IsPedShooting;
+local Wait <const> = Wait;
+
+CreateThread(function()
+    local ped, tv, pitch;
 	while true do
-		Citizen.Wait(0)
-		if IsPedShooting(PlayerPedId()) and not IsPedDoingDriveby(PlayerPedId()) then
-			local _, wep = GetCurrentPedWeapon(PlayerPedId())
-			_, cAmmo = GetAmmoInClip(PlayerPedId(), wep)
-			if recoils[wep] and recoils[wep] ~= 0 then
+        ped = PlayerPedId();
+		if (IsPedShooting(ped) and not IsPedDoingDriveby(ped)) then
+			local _ <const>, wep <const> = GetCurrentPedWeapon(ped);
+
+			if (recoils[wep] and recoils[wep] ~= 0) then
 				tv = 0
 				repeat
-					Wait(0)
-					p = GetGameplayCamRelativePitch()
-					if GetFollowPedCamViewMode() ~= 4 then
-						SetGameplayCamRelativePitch(p + 0.1, 0.2)
+					Wait();
+					pitch = GetGameplayCamRelativePitch();
+					if (GetFollowPedCamViewMode() ~= 4) then
+						SetGameplayCamRelativePitch(pitch + 0.1, 0.2);
 					end
-					tv = tv + 0.1
-				until tv >= recoils[wep]
+					tv += 0.1;
+				until tv >= recoils[wep];
 			end
+
 		end
+        Wait(0):
 	end
-end)
+end):
